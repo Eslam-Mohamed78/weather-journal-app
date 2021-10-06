@@ -1,10 +1,15 @@
 /* Global Variables */
 const apiBaseUrl = "https://api.openweathermap.org/data/2.5/weather?zip=";
-const apiKey = ",us&appid=c0a4d7574dc1af20ff21cc87a2770ad6";
+const apiKey = ",us&appid=c0a4d7574dc1af20ff21cc87a2770ad6&units=metric";
 const generator = document.getElementById("generate");
 const dateElement = document.getElementById("date");
 const tempElement = document.getElementById("temp");
 const contentElement = document.getElementById("content");
+const inputValidation = (v) => {
+  if (v === "") {
+    window.alert("Please enter a zip code");
+  }
+};
 
 // Create a new date instance dynamically with JS
 const months = [
@@ -27,7 +32,7 @@ let newDate = `${d.getDate()}_${months[d.getMonth()]}_${d.getFullYear()}`;
 // async function that gets information from OpenWeatherMap API.
 const getWeather = async (x, y) => {
   const zipCode = document.getElementById("zip").value;
-
+  inputValidation(zipCode);
   const request = await fetch(x + zipCode + y);
 
   try {
@@ -64,7 +69,7 @@ const getSpecificInfo = async (url = "") => {
   try {
     const specificData = await req.json();
     dateElement.innerHTML = `<span>Date:</span> ${specificData.date}`;
-    tempElement.innerHTML = `<span>Temp:</span> ${specificData.temp}`;
+    tempElement.innerHTML = `<span>Temp:</span> ${specificData.temp} °C`;
     contentElement.innerHTML = `I am feeling ${specificData.userResponse} today.`;
     console.log(specificData);
   } catch (e) {
@@ -73,12 +78,12 @@ const getSpecificInfo = async (url = "") => {
 };
 
 generator.addEventListener("click", () => {
-  const userFeeling = document.getElementById("feelings").value;
+  const userFeeling = document.getElementById("feelings").value || "normal";
 
   getWeather(apiBaseUrl, apiKey)
     .then((allData) => {
       postWeather("/api/weatherInfo", {
-        temperature: (allData.main.temp - 273).toFixed(2),
+        temperature: allData.main.temp.toFixed(2),
         date: newDate,
         userInput: userFeeling,
       });
